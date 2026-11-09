@@ -1,0 +1,15 @@
+# Python and tools
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.ipynb_checkpoints/
+
+# Downloads and anything rebuilt from them
+data/raw/
+data/processed/
+
+# Trained models (rebuild with the commands in the README)
+models/
