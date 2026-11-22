@@ -51,3 +51,19 @@ def foresight(market: str = MARKET):
     market = _check(market)
     save_actions(perfect_foresight(_test_prices(market)), market, "perfect_foresight")
     print("Saved the perfect-foresight schedule")
+
+
+@app.command()
+def rule(market: str = MARKET):
+    """Charge at yesterday's cheapest times, sell at its dearest."""
+    from batterytrader.pipeline import load_market, prices_for
+    from batterytrader.results import save_actions
+    from batterytrader.strategies.rule import rule_schedule
+
+    market = _check(market)
+    table = load_market()
+    # The rule needs the day before the test year, so plan over all the data, then cut
+    plan = rule_schedule(table[config.PRICE_COLUMN[market]])
+    test = prices_for(table, market)
+    save_actions(plan.reindex(test.index), market, "rule")
+    print("Saved the rule schedule")
