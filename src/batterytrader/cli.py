@@ -121,3 +121,25 @@ def rl_train(
     folder = train(table, col, market, algo, seed, steps)
     print(f"Saved the best model to {folder}")
     save_actions(trade_test_year(table, col, market, algo, seed), market, f"rl_{algo}_seed{seed}")
+
+
+@app.command()
+def evaluate(market: str = MARKET, day: str = "2025-01-08"):
+    """Score every saved strategy, then save the summary and the README charts."""
+    from batterytrader.evaluate import evaluate as run
+    from batterytrader.evaluate import simulate_all
+    from batterytrader.pipeline import load_market
+    from batterytrader.plots import capture_bars, cumulative_profit, day_plot
+
+    market = _check(market)
+    table, regimes = run(load_market(), market)
+    print(table.to_string())
+    print("\nCapture rate (%) on calm and volatile days")
+    print(regimes.to_string())
+    sims = simulate_all(load_market(), market)
+    for path in (
+        day_plot(sims, day, market),
+        cumulative_profit(sims, market),
+        capture_bars(table, market),
+    ):
+        print(f"Saved {path}")
