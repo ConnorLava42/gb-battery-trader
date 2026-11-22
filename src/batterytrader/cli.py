@@ -40,3 +40,14 @@ def build():
     from batterytrader.pipeline import build as run
 
     run()
+
+
+@app.command()
+def foresight(market: str = MARKET):
+    """The perfect-foresight upper bound on the test year."""
+    from batterytrader.results import save_actions
+    from batterytrader.strategies.optimiser import perfect_foresight
+
+    market = _check(market)
+    save_actions(perfect_foresight(_test_prices(market)), market, "perfect_foresight")
+    print("Saved the perfect-foresight schedule")
