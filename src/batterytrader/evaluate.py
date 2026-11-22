@@ -64,6 +64,7 @@ def evaluate(market_table: pd.DataFrame, market: str) -> tuple[pd.DataFrame, pd.
     (REPORT_DIR / f"summary_{market}.md").write_text(
         table.to_markdown()
         + "\n\nCapture rate (%) on calm and volatile days\n\n"
-        + regimes.to_markdown()
+        + regimes.to_markdown(),
+        encoding="utf-8",
     )
     return table, regimes

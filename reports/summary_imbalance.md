@@ -1,4 +1,4 @@
-|                                     |   capture rate (%) |   £ per MW per year |   cycles per day |
+|                                     |   capture rate (%) |   Â£ per MW per year |   cycles per day |
 |:------------------------------------|-------------------:|--------------------:|-----------------:|
 | Perfect foresight (upper bound)     |              100   |              103630 |             3.39 |
 | Rule: yesterday's pattern           |                8.3 |                8565 |             0.86 |
@@ -9,8 +9,8 @@
 | RL: PPO (seed 0)                    |               24   |               24835 |             1.55 |
 | RL: PPO (seed 1)                    |               22.3 |               23116 |             1.34 |
 | RL: PPO (seed 2)                    |               21.1 |               21905 |             1.17 |
-| RL: DQN, mean of 3 seeds (± sd 2.0) |               27.7 |               28708 |             1.34 |
-| RL: PPO, mean of 3 seeds (± sd 1.4) |               22.5 |               23286 |             1.35 |
+| RL: DQN, mean of 3 seeds (Â± sd 2.0) |               27.7 |               28708 |             1.34 |
+| RL: PPO, mean of 3 seeds (Â± sd 1.4) |               22.5 |               23286 |             1.35 |
 
 Capture rate (%) on calm and volatile days
 

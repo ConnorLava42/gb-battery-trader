@@ -143,3 +143,20 @@ def evaluate(market: str = MARKET, day: str = "2025-01-08"):
         capture_bars(table, market),
     ):
         print(f"Saved {path}")
+
+
+@app.command()
+def agile(region: str = "C"):
+    """Optional: a 3 kW / 10 kWh home battery on Octopus Agile in the test year."""
+    import json
+
+    from batterytrader.agile import compare, fetch_agile
+    from batterytrader.data.clean import fill_gaps, half_hour_grid
+
+    prices = fetch_agile(config.TEST_START, config.TEST_END, region)
+    prices = fill_gaps(prices.reindex(half_hour_grid(config.TEST_START, config.TEST_END)))
+    print(f"{len(prices):,} half-hours of Agile prices, region {region}")
+    result = compare(prices)
+    print(result.to_string())
+    config.REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    (config.REPORT_DIR / "agile.json").write_text(json.dumps(result.to_dict(), indent=2))
