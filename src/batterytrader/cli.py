@@ -67,3 +67,38 @@ def rule(market: str = MARKET):
     test = prices_for(table, market)
     save_actions(plan.reindex(test.index), market, "rule")
     print("Saved the rule schedule")
+
+
+@app.command()
+def forecast(
+    market: str = MARKET,
+    every: int = typer.Option(4, help="train on one issue time in this many (higher = faster)"),
+):
+    """Train the price forecaster, then forecast every half-hour of the test year."""
+    from batterytrader.forecasting import accuracy_by_horizon, forecast_test, train_model
+    from batterytrader.pipeline import load_market
+
+    market = _check(market)
+    table, col = load_market(), config.PRICE_COLUMN[market]
+    model = train_model(table, col, every=every)
+    print(f"Trained with {model.best_iteration_} trees")
+    forecasts = forecast_test(model, table, col)
+    forecasts.to_parquet(config.PROCESSED_DIR / f"forecasts_{market}.parquet")
+    config.MODEL_DIR.mkdir(parents=True, exist_ok=True)
+    model.booster_.save_model(config.MODEL_DIR / f"price_model_{market}.txt")
+    print("Mean absolute error (£/MWh), model vs 'same time yesterday':")
+    print(accuracy_by_horizon(table, col, forecasts))
+
+
+@app.command()
+def mpc(market: str = MARKET):
+    """Re-optimise against the latest forecast every half-hour of the test year."""
+    import pandas as pd
+
+    from batterytrader.results import save_actions
+    from batterytrader.strategies.mpc import rolling_optimise
+
+    market = _check(market)
+    forecasts = pd.read_parquet(config.PROCESSED_DIR / f"forecasts_{market}.parquet")
+    save_actions(rolling_optimise(_test_prices(market), forecasts), market, "forecast_lp")
+    print("Saved the forecast + optimiser schedule")
