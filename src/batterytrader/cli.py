@@ -102,3 +102,22 @@ def mpc(market: str = MARKET):
     forecasts = pd.read_parquet(config.PROCESSED_DIR / f"forecasts_{market}.parquet")
     save_actions(rolling_optimise(_test_prices(market), forecasts), market, "forecast_lp")
     print("Saved the forecast + optimiser schedule")
+
+
+@app.command("rl-train")
+def rl_train(
+    market: str = MARKET,
+    algo: str = typer.Option("dqn", help="dqn, ppo or sac"),
+    seed: int = 0,
+    steps: int = 300_000,
+):
+    """Train an RL agent on 2021-2023, keep the best on 2024, then trade 2025."""
+    from batterytrader.pipeline import load_market
+    from batterytrader.results import save_actions
+    from batterytrader.rl.train import trade_test_year, train
+
+    market = _check(market)
+    table, col = load_market(), config.PRICE_COLUMN[market]
+    folder = train(table, col, market, algo, seed, steps)
+    print(f"Saved the best model to {folder}")
+    save_actions(trade_test_year(table, col, market, algo, seed), market, f"rl_{algo}_seed{seed}")
